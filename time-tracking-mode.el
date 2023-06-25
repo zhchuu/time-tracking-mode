@@ -70,9 +70,9 @@
     (if (not (equal time-tracking-mode-last-win-point (window-point)))
         (if time-tracking-mode-last-working-time
             (time-tracking-mode-dump-snapshot)))
-      (time-tracking-mode-update-last-working-time)
-      (time-tracking-mode-update-last-win-point)
-      ))
+    (time-tracking-mode-update-last-working-time)
+    (time-tracking-mode-update-last-win-point)
+    ))
 
 (defun time-tracking-mode-sumup-secs-helper (lst)
   "Sum up the third element of the list."
