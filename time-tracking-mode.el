@@ -78,10 +78,11 @@
   "Sum up the third element of the list."
   (if (null lst)
       0
-    (+
-     (string-to-number (nth 2 (split-string (car lst) ",")))
-     (time-tracking-mode-sumup-secs-helper (cdr lst))))
-  )
+    (let ((sum 0))
+      (dolist (item lst)
+        (setq sum (+ sum (string-to-number (nth 2 (split-string item ","))))))
+      sum)
+    ))
 
 (defun time-tracking-mode-summarize-today ()
   "Describe the time worked today."
@@ -92,7 +93,11 @@
                   (insert-file-contents snapshot-file)
                   (split-string (buffer-string) "\n" t)))
          (today-total-secs (time-tracking-mode-sumup-secs-helper lines)))
-    (message "You have worked for %.2f seconds today." today-total-secs)
+    (if (> today-total-secs 3600)
+        (message "You have worked for %.2f hours today." (/ today-total-secs 3600))
+      (if (> today-total-secs 60)
+          (message "You have worked for %.2f mins today." (/ today-total-secs 60))
+        (message "You have worked for %.2f seconds today." today-total-secs)))
     )
   )
 
