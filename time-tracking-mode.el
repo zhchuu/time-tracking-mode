@@ -26,14 +26,14 @@
 ;;; TODO:
 ;;
 ;; [ ] Customize the update interval.
-;; [ ] Create new dir for recording.
+;; [x] Create new dir for recording.
 ;; [ ] Better interface to show working history.
 ;;
 
 ;; Vars
 (defvar time-tracking-mode-last-working-time nil)
 (defvar time-tracking-mode-last-win-point nil)
-(defvar time-tracking-mode-snapshot-dir user-emacs-directory)
+(defvar time-tracking-mode-snapshot-dir (file-name-as-directory (concat user-emacs-directory "time-tracking-mode-log")))
 (defvar time-tracking-mode-update-interval-sec 60)
 (defvar time-tracking-mode-timer nil)
 
@@ -101,8 +101,13 @@
     )
   )
 
+(defun time-tracking-mode-create-snapshot-dir ()
+  (if (null (file-directory-p time-tracking-mode-snapshot-dir))
+      (make-directory time-tracking-mode-snapshot-dir)))
+
 (defun time-tracking-mode-turn-on ()
   (progn
+    (time-tracking-mode-create-snapshot-dir)
     (time-tracking-mode-update-last-working-time)
     (time-tracking-mode-update-last-win-point)
     (setq time-tracking-mode-timer (run-at-time nil time-tracking-mode-update-interval-sec 'time-tracking-mode-checkpoint))
