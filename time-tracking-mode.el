@@ -25,7 +25,7 @@
 
 ;;; TODO:
 ;;
-;; [ ] Customize the update interval.
+;; [x] Customize the update interval.
 ;; [x] Create new dir for recording.
 ;; [ ] Better interface to show working history.
 ;;
@@ -118,6 +118,7 @@
   (progn
     (if time-tracking-mode-timer
         (cancel-timer time-tracking-mode-timer))
+    (setq time-tracking-mode-timer nil)
     (message "Turn off time-tracking-mode done.")
     ))
 
