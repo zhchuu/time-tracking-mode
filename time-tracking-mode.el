@@ -97,7 +97,7 @@
       sum)
     ))
 
-(defun time-tracking-mode-pretty-duraion-helper (secs)
+(defun time-tracking-mode-pretty-duration-helper (secs)
   (if (> secs 3600)
       (format "%.2f hours" (/ secs 3600))
     (if (> secs 60)
@@ -125,7 +125,7 @@
         (report "")
         (i 0))
     (dolist (day week-day-list)
-      (setq pretty-duration (time-tracking-mode-pretty-duraion-helper (time-tracking-mode-summarize-day day)))
+      (setq pretty-duration (time-tracking-mode-pretty-duration-helper (time-tracking-mode-summarize-day day)))
       (setq report (concat report (format "%s: %s, " (nth i weekdays) pretty-duration)))
       (setq i (+ i 1))
       )
@@ -137,7 +137,7 @@
   (interactive)
   (let* ((today (time-tracking-mode-today))
          (today-total-secs (time-tracking-mode-summarize-day today))
-         (pretty-duration (time-tracking-mode-pretty-duraion-helper today-total-secs)))
+         (pretty-duration (time-tracking-mode-pretty-duration-helper today-total-secs)))
     (message "You have worked for %s today." pretty-duration)
     ))
 
