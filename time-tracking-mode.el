@@ -27,7 +27,7 @@
 ;;
 ;; [x] Customize the update interval.
 ;; [x] Create new dir for recording.
-;; [ ] Better interface to show working history.
+;; [x] Better interface to show working history.
 ;;
 
 ;; Vars
@@ -40,6 +40,19 @@
 ;; Funcs
 (defun time-tracking-mode-today ()
   (format-time-string "%Y%m%d"))
+
+(defun time-tracking-mode-week ()
+  "Return the date list of this week (from Monday to Sunday)."
+  (let* ((today (current-time))
+         (dow (string-to-number (format-time-string "%w" today)))
+         (week-day-list '())
+         (i 0))
+    (if (= dow 0)
+        (setq dow 7))
+    (while (< i dow)
+      (setq week-day-list (cons (format-time-string "%Y%m%d" (time-subtract today (days-to-time i))) week-day-list))
+      (setq i (+ i 1)))
+    week-day-list))
 
 (defun time-tracking-mode-update-last-working-time ()
   (setq time-tracking-mode-last-working-time (current-time)))
@@ -84,22 +97,49 @@
       sum)
     ))
 
+(defun time-tracking-mode-pretty-duraion-helper (secs)
+  (if (> secs 3600)
+      (format "%.2f hours" (/ secs 3600))
+    (if (> secs 60)
+        (format "%.2f mins" (/ secs 60))
+      (format "%.2f seconds" secs))))
+
+(defun time-tracking-mode-summarize-day (day)
+  "Return the seconds worked in day."
+  (let* ((snapshot-file (concat time-tracking-mode-snapshot-dir day)))
+    (if (null (file-exists-p snapshot-file))
+        0
+      (progn
+        (setq lines (with-temp-buffer
+                      (insert-file-contents snapshot-file)
+                      (split-string (buffer-string) "\n" t)))
+        (setq today-total-secs (time-tracking-mode-sumup-secs-helper lines))
+        today-total-secs)
+      )))
+
+(defun time-tracking-mode-summarize-week ()
+  "Describe the time worked this week."
+  (interactive)
+  (let ((week-day-list (time-tracking-mode-week))
+        (weekdays '("Mon" "Tue" "Wed" "Thu" "Fri" "Sat" "Sun"))
+        (report "")
+        (i 0))
+    (dolist (day week-day-list)
+      (setq pretty-duration (time-tracking-mode-pretty-duraion-helper (time-tracking-mode-summarize-day day)))
+      (setq report (concat report (format "%s: %s, " (nth i weekdays) pretty-duration)))
+      (setq i (+ i 1))
+      )
+    (message "%s" report)
+    ))
+
 (defun time-tracking-mode-summarize-today ()
   "Describe the time worked today."
   (interactive)
   (let* ((today (time-tracking-mode-today))
-         (snapshot-file (concat time-tracking-mode-snapshot-dir today))
-         (lines (with-temp-buffer
-                  (insert-file-contents snapshot-file)
-                  (split-string (buffer-string) "\n" t)))
-         (today-total-secs (time-tracking-mode-sumup-secs-helper lines)))
-    (if (> today-total-secs 3600)
-        (message "You have worked for %.2f hours today." (/ today-total-secs 3600))
-      (if (> today-total-secs 60)
-          (message "You have worked for %.2f mins today." (/ today-total-secs 60))
-        (message "You have worked for %.2f seconds today." today-total-secs)))
-    )
-  )
+         (today-total-secs (time-tracking-mode-summarize-day today))
+         (pretty-duration (time-tracking-mode-pretty-duraion-helper today-total-secs)))
+    (message "You have worked for %s today." pretty-duration)
+    ))
 
 (defun time-tracking-mode-create-snapshot-dir ()
   (if (null (file-directory-p time-tracking-mode-snapshot-dir))
