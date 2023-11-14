@@ -99,9 +99,9 @@
 
 (defun time-tracking-mode-pretty-duration-helper (secs)
   (if (> secs 3600)
-      (format "%.2f hours" (/ secs 3600))
+      (format "%dh%dm" (floor (/ secs 3600)) (floor (/ (mod secs 3600) 60)))
     (if (> secs 60)
-        (format "%.2f mins" (/ secs 60))
+        (format "%dm" (floor (/ secs 60)))
       (format "%.2f seconds" secs))))
 
 (defun time-tracking-mode-summarize-day (day)
